@@ -1,5 +1,6 @@
 /* Everything scales with --k (set from JS), so the opening looks right
-   on a 390px phone and on a 1918px laptop. */
+   on a 390px phone and on a 1918px laptop. Sizes copied from the HTML version:
+   blob 150px, eyes 13% x 25% of the blob. */
 .splash {
   position: absolute;
   inset: 0;
@@ -7,6 +8,7 @@
   pointer-events: none;
   overflow: hidden;
   --k: 1;
+  --d: calc(150px * var(--k));
 }
 
 .canvas {
@@ -17,31 +19,59 @@
   display: block;
 }
 
-.blob {
+/* blob + eyes travel together as one mascot */
+.mascot {
   position: absolute;
   left: 0;
   top: 0;
-  border-radius: 50%;
+  width: var(--d);
+  height: var(--d);
   transform-origin: 0 0;
-  transform: scale(0);
-  background: radial-gradient(circle at 32% 24%, #6a62e0, #463ac5 55%, #2b2394);
   will-change: transform;
+}
+
+.blob {
+  position: absolute;
+  inset: 0;
+  scale: 0.2;
+  opacity: 0;
+  border-radius: 52% 48% 55% 45% / 48% 54% 46% 52%;
+  background: radial-gradient(circle at 32% 24%, #6a62e0, #4338ca 46%, #2b2394 100%);
+  box-shadow: inset 0 calc(var(--d) * -0.05) calc(var(--d) * 0.08) rgba(255, 255, 255, 0.14);
+  animation: morph 6s ease-in-out infinite alternate;
+}
+.blob::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  top: 12%;
+  width: 26%;
+  height: 14%;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.32;
+  filter: blur(calc(var(--d) * 0.013));
+  transform: rotate(-24deg);
 }
 
 .eyes {
   position: absolute;
-  left: 0;
-  top: 0;
-  display: flex;
-  gap: calc(12px * var(--k));
-  transform-origin: 0 0;
+  inset: 0;
   opacity: 0;
-  will-change: transform, opacity;
 }
 .eyes i {
-  display: block;
-  width: calc(7px * var(--k));
-  height: calc(12px * var(--k));
+  position: absolute;
+  top: 33%;
+  width: 13%;
+  height: 25%;
   border-radius: 999px;
   background: #fff;
+}
+.eyes i:nth-child(1) { left: 31%; }
+.eyes i:nth-child(2) { left: 56%; }
+
+@keyframes morph {
+  0%   { border-radius: 52% 48% 55% 45% / 48% 54% 46% 52%; transform: scale(1); }
+  50%  { border-radius: 46% 54% 48% 52% / 55% 45% 56% 44%; transform: scale(1.02, 0.985); }
+  100% { border-radius: 55% 45% 50% 50% / 46% 56% 44% 54%; transform: scale(0.99, 1.025); }
 }
