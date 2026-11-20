@@ -1,0 +1,95 @@
+.home {
+  --p: 0; /* 0 home -> 1 voice mode (registered with @property in globals.css so it can transition) */
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background: radial-gradient(120% 70% at 50% 28%, #f6f6f3 0%, #efefec 60%, #ebebe8 100%);
+  transition: --p 0.75s cubic-bezier(0.5, 0, 0.2, 1), --cx 0.85s cubic-bezier(0.16, 0.84, 0.3, 1), --cy 1.15s cubic-bezier(0.5, 0, 0.25, 1), --s 0.7s cubic-bezier(0.22, 0.9, 0.28, 1), --tx 0.55s cubic-bezier(0.3, 0.9, 0.3, 1); /* different easings -> the mascot flies in a curve */
+}
+.dragging { transition: none; }
+
+/* everything on the home screen fades out as --p grows */
+.fade { opacity: max(0, calc(1 - var(--p) * 1.8)); }
+.goChat { opacity: calc(max(0, 1 - var(--p) * 1.8) * max(0, 1 - var(--cy) * 3)); }
+.noTouch { pointer-events: none; }
+.body { flex: 1; position: relative; }
+.dim { opacity: calc(1 - var(--s) * 0.78); filter: blur(calc(var(--s) * 3px)); }
+.fadeS { opacity: calc(max(0, 1 - var(--p) * 1.8) * max(0, 1 - var(--s) * 2.5)); }
+.fadeSl { opacity: max(0, calc(1 - var(--s) * 2.5)); }
+.swapA, .swapB { position: absolute; inset: 0; display: grid; place-items: center; }
+.swapA { opacity: max(0, calc(1 - var(--s) * 2.2)); }
+.swapB { opacity: max(0, calc(var(--s) * 2.2 - 0.6)); }
+.chatWrap { position: absolute; inset: 0; }
+
+.top {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+  display: grid; grid-template-columns: 44px 1fr 44px; align-items: start;
+  padding: max(54px, calc(env(safe-area-inset-top) + 8px)) 18px 0;
+}
+.round {
+  position: relative;
+  width: 44px; height: 44px; border-radius: 50%; border: 0;
+  display: grid; place-items: center; color: #444;
+  background: #f5f5f2; box-shadow: 0 6px 18px rgba(30,30,20,.07);
+  cursor: pointer;
+}
+.pull {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: -4px;
+  opacity: 0; animation: pullIn .5s ease-out 3.1s forwards;
+}
+.slot { width: 36px; height: 32px; }
+.pull span { font-size: 11.5px; color: #b0b0aa; letter-spacing: .01em; }
+@keyframes pullIn { from { opacity: 0; transform: translateY(-8px) scale(.8); } to { opacity: 1; transform: none; } }
+
+.center {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding-top: 172px; text-align: center;
+}
+.center h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.025em; color: #151515; }
+.center p { margin-top: 12px; font-size: 15px; color: #7a7a73; }
+.chips { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 10px;
+  height: 44px; padding: 0 22px; border-radius: 999px; border: 0;
+  background: #f6f6f3; color: #1a1a1a; font: inherit; font-size: 15px; font-weight: 600;
+  box-shadow: 0 8px 22px rgba(30,30,20,.07); cursor: pointer; transition: transform .15s;
+}
+.chip svg { color: #77776f; }
+.chip:active { transform: scale(.96); }
+
+/* ---- the mascot travels from the top icon (p=0) to the voice-mode blob (p=1) ---- */
+.mascotLayer {
+  position: absolute; inset: 0; pointer-events: none; z-index: 6;
+  opacity: 0; animation: layerIn .5s ease-out 3.1s forwards;
+}
+@keyframes layerIn { to { opacity: 1; } }
+.mascotPos {
+  position: absolute; left: calc((50% * (1 - var(--cx)) + ((100% - 42px) * (1 - var(--tx)) + 50% * var(--tx)) * var(--cx)) * (1 - var(--s)) + (100% - 64px) * var(--s));
+  top: calc(((66px * (1 - var(--p)) + 32% * var(--p)) * (1 - var(--cy)) + (100% - 152px - env(safe-area-inset-bottom)) * var(--cy)) * (1 - var(--s)) + (31% - 34px) * var(--s));
+  width: 170px; height: 170px;
+  transform: translate(-50%, -50%) scale(calc((0.212 + 0.788 * var(--p)) * (1 - 0.25 * var(--cx))));
+  pointer-events: auto; touch-action: none; cursor: grab;
+}
+.mascotPos::before { content: ""; position: absolute; inset: -40px; } /* bigger touch target */
+
+/* ---- voice mode text + End button ---- */
+.voice { position: absolute; inset: 0; pointer-events: auto; opacity: max(0, calc((var(--p) - 0.45) * 2)); }
+.listening {
+  position: absolute; left: 0; right: 0; top: 47%;
+  text-align: center; font-size: 20px; letter-spacing: -0.01em;
+  color: #9a9a94; transition: color .6s ease;
+}
+.listening.live { color: #1b1b1b; }
+.end {
+  position: absolute; left: 0; right: 0; bottom: calc(6% + 6px);
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+}
+.end span { font-size: 11.5px; color: #a3a39d; }
+.endBtn {
+  width: 60px; height: 60px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; color: #fff; background: #e5253b;
+  box-shadow: 0 10px 24px rgba(229, 37, 59, 0.28); transition: transform .15s;
+}
+.endBtn:active { transform: scale(.92); }
+
+/* higher specificity so these win over the pointer-events: auto set above */
+.mascotPos.noTouch, .voice.noTouch { pointer-events: none; }
