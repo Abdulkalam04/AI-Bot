@@ -22,7 +22,7 @@ export default function Page() {
   }, []);
 
   return (
-    <main className="device" key={run}>
+    <main className="app" key={run}>
       <Home />
       {!splashDone && <Splash onDone={() => setSplashDone(true)} />}
     </main>

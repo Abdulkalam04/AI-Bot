@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { MoonStarIcon, MusicIcon } from "./Icons";
 import BookingCard from "./BookingCard";
 import styles from "./Chat.module.css";
+import { APP_NAME } from "@/lib/config";
 
 export type Msg = {
   id: string;
@@ -49,7 +50,7 @@ export default function Chat({ messages, onChoose, onViewBooking }: { messages: 
           return <div key={m.id} className={styles.reply}><Words text={m.text ?? ""} /></div>;
         if (m.role === "typing")
           return (
-            <div key={m.id} className={styles.typing} aria-label="Puddle is typing">
+            <div key={m.id} className={styles.typing} aria-label={`${APP_NAME} is typing`}>
               <i /><i /><i />
             </div>
           );

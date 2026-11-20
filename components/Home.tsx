@@ -138,7 +138,7 @@ export default function Home() {
     if (!d) return;
     const dy = e.clientY - d.y;
     if (dy > 6) d.moved = true;
-    const range = (root.current?.clientHeight ?? 700) * 0.26;
+    const range = Math.min((root.current?.clientHeight ?? 700) * 0.26, 220);
     setP(clamp(dy / range));
   };
   const onUp = () => {
@@ -162,11 +162,12 @@ export default function Home() {
       className={`${styles.home} ${phase === "dragging" || sheetDrag ? styles.dragging : ""}`}
       style={{ ["--p" as string]: p, ["--cx" as string]: view === "chat" ? 1 : 0, ["--cy" as string]: view === "chat" ? 1 : 0, ["--s" as string]: sheet, ["--tx" as string]: view === "chat" && text.trim() ? 1 : 0 }}
     >
+      <div className={styles.column}>
       <header className={`${styles.top} ${styles.fade} ${locked ? styles.noTouch : ""}`}>
         <button className={`${styles.round} ${styles.fadeSl}`} aria-label="Settings"><SlidersIcon /></button>
         <div className={styles.goChat}>
           <div className={styles.pull}>
-            <div className={styles.slot} /> {/* the real mascot floats above this spot */}
+            <div className={styles.slot} data-splash-target /> {/* the real mascot floats above this spot */}
             <span>Pull me down</span>
           </div>
         </div>
@@ -217,6 +218,7 @@ export default function Home() {
           <button className={styles.endBtn} onClick={close} aria-label="End"><HangupIcon /></button>
           <span>End</span>
         </div>
+      </div>
       </div>
     </section>
   );

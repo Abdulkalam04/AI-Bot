@@ -1,6 +1,7 @@
 "use client";
 import { ArrowUpIcon, CalendarIcon, MicIcon, WaveIcon } from "./Icons";
 import styles from "./Composer.module.css";
+import { APP_NAME } from "@/lib/config";
 
 type Props = {
   value: string;
@@ -18,7 +19,7 @@ export default function Composer({ value, onChange, onSend, onVoice, recording =
       <input
         className={styles.input}
         value={value}
-        placeholder="Ask Puddle anything"
+        placeholder={`Ask ${APP_NAME} anything`}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && canSend && onSend()}
         enterKeyHint="send"

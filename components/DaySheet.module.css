@@ -1,6 +1,6 @@
 .sheet {
   position: absolute; z-index: 4;
-  left: 20px; right: 20px; top: 31%; bottom: 5%;
+  left: var(--pad-x); right: var(--pad-x); top: 31%; bottom: var(--bottom-pad);
   display: flex; flex-direction: column;
   border-radius: 32px; background: #f4f4f0;
   box-shadow: 0 -8px 40px rgba(30, 30, 20, 0.08), 0 24px 60px rgba(30, 30, 20, 0.1);
