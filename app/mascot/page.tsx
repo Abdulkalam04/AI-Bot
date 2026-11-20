@@ -10,7 +10,7 @@ export default function MascotLab() {
   const [sy, setSy] = useState(1);
 
   return (
-    <main style={{ minHeight: "100dvh", background: "#f2f2ef", display: "grid", gap: 24, placeItems: "center", padding: 24 }}>
+    <main style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--ink)", display: "grid", gap: 24, placeItems: "center", padding: 24 }}>
       <div style={{ height: 240, display: "grid", placeItems: "center" }}>
         <Mascot size={size} mood={mood} squashX={sx} squashY={sy} />
       </div>

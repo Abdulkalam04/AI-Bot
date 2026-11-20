@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { APP_NAME } from "@/lib/config";
+import { SettingsProvider } from "@/lib/settings";
 import "./globals.css";
 
 // The recording uses an Inter-style typeface
@@ -16,8 +17,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body>{children}</body>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=JSON.parse(localStorage.getItem("puddle-settings")||"{}");var a=s.appearance||"system";var dark=a==="dark"||(a==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=dark?"dark":"light";var motion=s.motion||"full";if(matchMedia("(prefers-reduced-motion: reduce)").matches)motion="off";document.documentElement.dataset.motion=motion;}catch(e){document.documentElement.dataset.theme="light";document.documentElement.dataset.motion="full";}}())`,
+          }}
+        />
+      </head>
+      <body><SettingsProvider>{children}</SettingsProvider></body>
     </html>
   );
 }

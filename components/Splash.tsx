@@ -3,29 +3,29 @@ import { useEffect, useRef } from "react";
 import styles from "./Splash.module.css";
 
 /* ------------------------------------------------------------------
-   Opening animation (about 6.70s)
-   0.00-0.70  black -> indigo, big eyes fade in and grow
-   0.85/1.45  two slower blinks
-   1.80-3.42  eyes look left, then right, then back to centre
-   3.15-4.10  glossy blob inflates behind the eyes (bouncy)
-   4.15-6.35  LIFT bottom -> top: thick drips with white gloss highlights,
+   Opening animation (about 4.2s)
+   0.00-0.45  black -> indigo, big eyes fade in and grow
+   0.55/0.95  two blinks
+   1.30-2.38  eyes look left, then right, then back to centre
+   2.20-2.85  glossy blob inflates behind the eyes (bouncy)
+   2.95-3.95  LIFT bottom -> top: thick drips with white gloss highlights,
               the blob + eyes ride the edge and land at the small
               mascot spot at the top
-   6.35-6.70  cross-fade onto the real mascot
+   3.95-4.20  cross-fade onto the real mascot
    Everything scales with one unit (k): same look on phone and laptop.
    Add ?slow=4 to the URL to watch it in slow motion.
 ------------------------------------------------------------------- */
 const T = {
-  fade: 0.7,
-  blinks: [0.85, 1.45],
-  blinkDur: 0.32,
+  fade: 0.45,
+  blinks: [0.55, 0.95],
+  blinkDur: 0.2,
   // [time, look] : -1 = left, 1 = right, 0 = centre
-  look: [[1.8, 0], [2.25, -1], [2.42, -1], [2.82, 1], [3.0, 1], [3.42, 0]] as [number, number][],
-  inflate0: 3.15,
-  inflate: 0.95,
-  lift0: 4.15,
-  lift: 2.20,
-  tail: 0.35,
+  look: [[1.3, 0], [1.58, -1], [1.7, -1], [1.98, 1], [2.1, 1], [2.38, 0]] as [number, number][],
+  inflate0: 2.2,
+  inflate: 0.65,
+  lift0: 2.95,
+  lift: 1.0,
+  tail: 0.25,
 };
 
 type Drip = { x: number; w: number; L: number; ph: number; hl: boolean; hl2: boolean };
@@ -57,33 +57,6 @@ function rng(seed: number) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
-}
-
-function drawGlossCrescent(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  radius: number,
-  angle = 0
-) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  ctx.fillStyle = "#fff";
-
-  const outer = radius;
-  const inner = radius * 0.58;
-  const start = Math.PI * 0.58;
-  const end = Math.PI * 1.22;
-
-  ctx.beginPath();
-  ctx.moveTo(outer * Math.cos(start), outer * Math.sin(start));
-  ctx.arc(0, 0, outer, start, end);
-  ctx.lineTo(inner * Math.cos(end), inner * Math.sin(end));
-  ctx.arc(0, 0, inner, end, start, true);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
 }
 
 function lookAt(s: number) {
@@ -122,7 +95,7 @@ export default function Splash({ onDone }: { onDone: () => void }) {
     }
 
     const slow = Math.max(0.1, parseFloat(new URLSearchParams(location.search).get("slow") || "1") || 1);
-    let W = 0, H = 0, k = 1, tx = 0, ty = 70, D = 36;
+    let W = 0, H = 0, k = 1, ls = 1, tx = 0, ty = 70, D = 36;
     let drips: Drip[] = [];
     let raf = 0;
     let finished = false;
@@ -138,16 +111,18 @@ export default function Splash({ onDone }: { onDone: () => void }) {
       k = clamp(Math.min(W, H * 0.7) / 390, 1, 2.4);
       el.style.setProperty("--k", String(k));
 
-      // chunky drips like melting paint (seeded, so identical every run)
+      // wide, rounded lobes of different depths, like melting paint (seeded)
       const rand = rng(11);
-      const n = Math.ceil(W / (52 * k));
+      const n = clamp(Math.round(W / (96 * k)), 3, 8); // few big lobes, like the reference
+      const pitch = W / n;
+      ls = pitch / 96; // lobe unit: equals k on phones, grows on wide screens
       drips = Array.from({ length: n }, (_, i) => ({
-        x: (i + 0.5 + (rand() - 0.5) * 0.5) * (W / n),
-        w: (10 + rand() * 6) * k,
-        L: (14 + rand() * 32) * k,
-        ph: rand() * 0.15,
-        hl: rand() < 0.8,
-        hl2: rand() < 0.3,
+        x: (i + 0.5 + (rand() - 0.5) * 0.3) * pitch,
+        w: pitch * (0.9 + rand() * 0.4),
+        L: (60 + rand() * 70) * ls,
+        ph: rand() * 0.12,
+        hl: rand() < 0.9,
+        hl2: rand() < 0.4,
       }));
 
       // where the real mascot rests (mark it in Home.tsx with data-splash-target)
@@ -170,6 +145,29 @@ export default function Splash({ onDone }: { onDone: () => void }) {
     const pop = bezier(0.34, 1.56, 0.64, 1);
     const t0 = performance.now();
 
+    /* wet-paint highlight: a real crescent that hugs the lobe outline.
+       = circle of radius R minus a larger shifted circle. angle = where the
+       middle of the crescent sits (canvas degrees, 135 = bottom-left),
+       half = half-width of the arc, t = thickness as a fraction of R. */
+    const crescent = (cx: number, cy: number, R: number, angle: number, half: number, t: number) => {
+      const phi = (half * Math.PI) / 180;
+      const alpha = (angle * Math.PI) / 180;
+      t = Math.min(t, (1 - Math.cos(phi)) * 0.8); // thickness can't exceed what the arc width allows
+      const delta = (1 - (1 - t) ** 2) / (2 * (1 - t - Math.cos(phi)));
+      const R2 = (1 - t + delta) * R;
+      const ix = cx - Math.cos(alpha) * delta * R;
+      const iy = cy - Math.sin(alpha) * delta * R;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, 6.283);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.rect(cx - R - 2, cy - R - 2, 2 * R + 4, 2 * R + 4);
+      ctx.arc(ix, iy, R2, 0, 6.283);
+      ctx.fill("evenodd");
+      ctx.restore();
+    };
+
     const frame = (now: number) => {
       const s = (now - t0) / 1000 / slow;
 
@@ -182,64 +180,81 @@ export default function Splash({ onDone }: { onDone: () => void }) {
       const u = clamp((s - T.lift0) / T.lift);
       const e = ease(u);
 
-      /* ---------- the sheet, with glossy drips ---------- */
+      /* ---------- the sheet: a smooth wave with glossy lobes ---------- */
       if (u < 1) {
-        const S = 62 * k;
-        const edge = lerp(H + 10 * k, -S - 8 * k, e);
-        const amp = 5 * k;
-        const wl = 60 * k;
-        const drift = u * 7;
-        const wy = (x: number) =>
-          edge + amp * Math.sin((x / wl) * 6.283 + drift) + amp * 0.45 * Math.sin((x / (27 * k)) * 6.283 + drift * 1.7);
-
-        ctx.fillStyle = "#f7f7f4";
-        ctx.fillRect(0, 0, W, H);
-
         ctx.fillStyle = indigo;
+        ctx.strokeStyle = indigo;
+        const rho = 10 * ls; // rounds the bottom of every lobe
+        const S = 190 * ls; // deepest the wave can reach
+        const edge = lerp(H + 10 * ls, -S - 10 * ls, e);
+
+        // lobe depth over time: grow, hold (so the shine can be seen), retract
+        const lens = drips.map((d) => {
+          const q = clamp((u - d.ph) / (1 - d.ph));
+          return d.L * smooth(Math.min(q / 0.35, 1)) * smooth(Math.min((1 - q) / 0.3, 1));
+        });
+        const sx = drips.map((d, i) => d.x + Math.sin(u * 5 + i * 1.7) * 5 * ls); // slow sway
+        const bell = (z: number) => (0.5 + 0.5 * Math.cos(Math.PI * Math.abs(z))) ** 0.85;
+        const yAt = (x: number) => {
+          let y = edge;
+          for (let i = 0; i < drips.length; i++) {
+            const z = (x - sx[i]) / (drips[i].w / 2);
+            if (z > -1 && z < 1) y += lens[i] * bell(z);
+          }
+          return y;
+        };
+
+        const x0 = -3 * rho, x1 = W + 3 * rho;
+        const STEP = 4;
+        const raw: number[] = [];
+        for (let x = x1; x >= x0; x -= STEP) raw.push(yAt(x));
+        const N = raw.length;
+        // 1) round the bottom of every lobe (morphological dilation with a circle)
+        const r = Math.max(1, Math.round(rho / STEP));
+        const dil = raw.map((_, i) => {
+          let best = -1e9;
+          for (let j = Math.max(0, i - r); j <= Math.min(N - 1, i + r); j++) {
+            const dx = (j - i) * STEP;
+            const v = raw[j] + Math.sqrt(Math.max(0, rho * rho - dx * dx)) - rho;
+            if (v > best) best = v;
+          }
+          return best;
+        });
+        // 2) round the humps between lobes (two box blurs ~ a gaussian)
+        const m = Math.max(1, Math.round((9 * ls) / STEP));
+        const blur = (a: number[]) =>
+          a.map((_, i) => {
+            let sum = 0, cnt = 0;
+            for (let j = Math.max(0, i - m); j <= Math.min(N - 1, i + m); j++) { sum += a[j]; cnt++; }
+            return sum / cnt;
+          });
+        const ys = blur(blur(dil));
+
         ctx.beginPath();
-        ctx.moveTo(0, -2);
-        ctx.lineTo(W, -2);
-        for (let x = W; x >= 0; x -= 5) ctx.lineTo(x, wy(x));
-        ctx.lineTo(0, wy(0));
+        ctx.moveTo(x0, -2);
+        ctx.lineTo(x1, -2);
+        ys.forEach((y, i) => ctx.lineTo(x1 - i * STEP, y));
         ctx.closePath();
         ctx.fill();
 
-        const bulbs: { x: number; y: number; r: number; d: Drip; len: number }[] = [];
-        for (const d of drips) {
-          const q = clamp((u - d.ph) / (1 - d.ph));
-          const len = d.L * Math.sin(Math.PI * q) ** 0.8;
-          if (len < 2 * k) continue;
-          const y0 = wy(d.x);
-          const yb = y0 + len;
-          const fl = Math.min(d.w * 1.0, len * 0.6);
-          ctx.beginPath();
-          ctx.moveTo(d.x - d.w / 2 - fl, y0 - 1);
-          ctx.quadraticCurveTo(d.x - d.w / 2, y0 - 1, d.x - d.w / 2, y0 + fl);
-          ctx.lineTo(d.x - d.w / 2, yb);
-          ctx.lineTo(d.x + d.w / 2, yb);
-          ctx.lineTo(d.x + d.w / 2, y0 + fl);
-          ctx.quadraticCurveTo(d.x + d.w / 2, y0 - 1, d.x + d.w / 2 + fl, y0 - 1);
-          ctx.closePath();
-          ctx.fill();
-          const r = d.w * 0.75;
-          ctx.beginPath();
-          ctx.arc(d.x, yb, r, 0, 6.283);
-          ctx.fill();
-          bulbs.push({ x: d.x, y: yb, r, d, len });
-        }
-
-        // One reusable flat-white crescent per eligible drip tip.
-        for (const b of bulbs) {
-          if (!b.d.hl) continue;
-          const size = b.r * (b.d.hl2 ? 0.62 : 0.52);
-          drawGlossCrescent(
-            ctx,
-            b.x - b.r * 0.20,
-            b.y + b.r * 0.10,
-            size,
-            -0.08
-          );
-        }
+        // white wet-paint highlights on the bottom-left of each lobe
+        drips.forEach((d, i) => {
+          if (!d.hl) return;
+          const a = clamp((lens[i] - 30 * ls) / (30 * ls));
+          if (a <= 0) return;
+          // true lowest point of this lobe on the final edge
+          let bi = 0, bv = -1e9;
+          const lo = Math.max(0, Math.round((x1 - (sx[i] + d.w * 0.25)) / STEP));
+          const hi = Math.min(N - 1, Math.round((x1 - (sx[i] - d.w * 0.25)) / STEP));
+          for (let j = lo; j <= hi; j++) if (ys[j] > bv) { bv = ys[j]; bi = j; }
+          const bx = x1 - bi * STEP;
+          const Rb = 21 * ls; // radius of the rounded lobe bottom
+          const R = Rb * 0.84;
+          const cy = bv - Rb;
+          ctx.fillStyle = `rgba(255,255,255,${0.97 * a})`;
+          crescent(bx, cy, R, 106, 50, 0.32); // main crescent, bottom-left
+          if (d.hl2) crescent(bx, cy, R, 200, 26, 0.1); // thin flick up the left side
+        });
       }
 
       /* ---------- eyes + blob group ---------- */

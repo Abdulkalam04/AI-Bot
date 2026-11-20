@@ -1,0 +1,40 @@
+.popover {
+  position: absolute;
+  z-index: 40;
+  left: 50%;
+  bottom: calc(var(--bottom-pad) + 112px);
+  transform: translateX(-50%) scale(0.96);
+  transform-origin: bottom center;
+  width: 220px;
+  padding: 6px;
+  border: 1px solid var(--hair);
+  border-radius: 18px;
+  background: var(--surface-strong);
+  box-shadow: 0 16px 40px var(--shadow);
+  animation: popIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.option {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  padding: 0 12px;
+  cursor: pointer;
+}
+.option:hover, .option:focus-visible, .selected { background: var(--surface-soft); }
+.date {
+  width: calc(100% - 12px);
+  min-height: 44px;
+  margin: 4px 6px 6px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 0 10px;
+}
+@keyframes popIn {
+  to { transform: translateX(-50%) scale(1); }
+}

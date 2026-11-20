@@ -76,3 +76,10 @@
 @media (prefers-reduced-motion: reduce) {
   .morph, .pills i { animation: none; }
 }
+
+:global(html[data-motion="calm"]) .morph {
+  animation-duration: 14s, 18s;
+}
+:global(html[data-motion="calm"]) .pills i {
+  animation-duration: 9.2s;
+}

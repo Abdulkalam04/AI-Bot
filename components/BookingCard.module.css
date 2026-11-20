@@ -2,8 +2,8 @@
   align-self: stretch;
   padding: 18px 20px 20px;
   border-radius: 26px;
-  background: #f7f7f4;
-  box-shadow: 0 10px 30px rgba(30, 30, 20, 0.07), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  background: var(--surface-strong);
+  box-shadow: 0 10px 30px var(--shadow), 0 1px 0 color-mix(in srgb, var(--white) 80%, transparent) inset;
   animation: bookIn 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 @keyframes bookIn {
@@ -13,22 +13,22 @@
 
 .head { display: flex; align-items: center; gap: 12px; }
 .logo {
-  width: 46px; height: 46px; border-radius: 13px; background: #e8e8e4; color: #1b1b18;
+  width: 46px; height: 46px; border-radius: 13px; background: var(--surface-soft); color: var(--ink);
   display: grid; place-items: center; flex: none;
 }
-.name { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: #1b1b18; }
-.sub { margin-top: 3px; display: flex; align-items: center; gap: 6px; font-size: 13px; color: #8a8a84; }
-.subIcon { display: inline-flex; color: #8a8a84; transition: color 0.3s; }
-.subIcon.ok { color: #1b1b18; }
+.name { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+.sub { margin-top: 3px; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-3); }
+.subIcon { display: inline-flex; color: var(--ink-3); transition: color 0.3s; }
+.subIcon.ok { color: var(--ink); }
 
 /* ---- big rolling time ---- */
 .time {
   margin-top: 18px; display: flex; align-items: flex-end;
-  font-size: 46px; font-weight: 700; letter-spacing: -0.045em; color: #1b1b18;
+  font-size: 46px; font-weight: 700; letter-spacing: -0.045em; color: var(--ink);
   font-variant-numeric: tabular-nums; line-height: 1.05;
   animation: timeIn 0.9s ease-out both;
 }
-@keyframes timeIn { from { color: #b9b9b3; } to { color: #1b1b18; } }
+@keyframes timeIn { from { color: var(--ink-3); } to { color: var(--ink); } }
 .roll { display: inline-block; height: 1.05em; overflow: hidden; }
 .strip {
   display: flex; flex-direction: column;
@@ -38,17 +38,17 @@
 .strip span { display: block; height: 1.05em; }
 .colon { display: inline-block; height: 1.05em; margin: 0 -0.02em; }
 .time small {
-  margin: 0 0 0.12em 0.14em; font-size: 16px; font-weight: 500; letter-spacing: 0; color: #8a8a84;
+  margin: 0 0 0.12em 0.14em; font-size: 16px; font-weight: 500; letter-spacing: 0; color: var(--ink-3);
 }
 
-.meta { margin-top: 10px; display: flex; gap: 22px; font-size: 15px; color: #6f6f69; }
+.meta { margin-top: 10px; display: flex; gap: 22px; font-size: 15px; color: var(--ink-2); }
 .meta span { display: inline-flex; align-items: center; gap: 7px; }
-.meta svg { color: #85857f; }
+.meta svg { color: var(--ink-3); }
 
-.rule { margin: 16px 0 14px; border: 0; height: 1px; background: #e9e9e4; }
+.rule { margin: 16px 0 14px; border: 0; height: 1px; background: var(--hair); }
 
-.note { display: flex; align-items: center; gap: 11px; font-size: 14px; color: #8a8a84; min-height: 20px; }
-.noteIcon { display: inline-flex; color: #8a8a84; }
+.note { display: flex; align-items: center; gap: 11px; font-size: 14px; color: var(--ink-3); min-height: 20px; }
+.noteIcon { display: inline-flex; color: var(--ink-3); }
 
 /* text that changes cross-fades in */
 .swap { animation: swapIn 0.4s ease-out both; }
@@ -63,10 +63,10 @@
 }
 .btn:active:not(:disabled) { transform: scale(0.96); }
 .label { display: inline-flex; align-items: center; gap: 8px; }
-.primary { background: #1b1b18; color: #fff; }
+.primary { background: var(--ink); color: var(--white); }
 .primary:disabled { cursor: default; }
-.primary.done { background: #e9e9e5; color: #1b1b18; }
-.secondary { background: #e9e9e5; color: #1b1b18; max-width: 140px; overflow: hidden; }
+.primary.done { background: var(--surface-soft); color: var(--ink); }
+.secondary { background: var(--surface-soft); color: var(--ink); max-width: 140px; overflow: hidden; }
 .secondary.gone { opacity: 0; max-width: 0; padding: 0; margin-left: -8px; pointer-events: none; }
 
 @media (prefers-reduced-motion: reduce) {

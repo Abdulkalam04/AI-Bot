@@ -14,6 +14,8 @@ export type Msg = {
   choices?: Choice[];                // Quiet / Loud buttons
   chosen?: string;                   // id of the picked choice
   fromComposer?: boolean;            // bubble flies up from the composer
+  context?: { label: string; iso: string };
+  leaving?: boolean;
 };
 export type Choice = { id: string; label: string; icon: "moon" | "music" };
 
@@ -42,10 +44,15 @@ export default function Chat({ messages, onChoose, onViewBooking }: { messages: 
   }, [messages]);
 
   return (
-    <div ref={ref} className={styles.chat}>
-      {messages.map((m) => {
+    <div ref={ref} className={`${styles.chat} ${messages.some((message) => message.leaving) ? styles.leavingChat : ""}`}>
+      {messages.map((m, index) => {
         if (m.role === "user")
-          return <div key={m.id} className={`${styles.user} ${m.fromComposer ? styles.fly : ""}`}>{m.text}</div>;
+          return (
+            <div key={m.id} className={`${styles.userWrap} ${m.leaving ? styles.leaving : ""}`} style={m.leaving ? { animationDelay: `${index * 40}ms` } : undefined}>
+              <div className={`${styles.user} ${m.fromComposer ? styles.fly : ""}`}>{m.text}</div>
+              {m.context && m.context.label !== "Today" && <span className={styles.contextCaption}>for {m.context.label}</span>}
+            </div>
+          );
         if (m.role === "reply")
           return <div key={m.id} className={styles.reply}><Words text={m.text ?? ""} /></div>;
         if (m.role === "typing")
