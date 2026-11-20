@@ -3,29 +3,29 @@ import { useEffect, useRef } from "react";
 import styles from "./Splash.module.css";
 
 /* ------------------------------------------------------------------
-   Opening animation (about 3.9s)
-   0.00-0.45  black -> indigo, big eyes fade in and grow
-   0.55/0.95  two blinks
-   1.30-2.38  eyes look left, then right, then back to centre
-   2.20-2.85  glossy blob inflates behind the eyes (bouncy)
-   2.95-3.70  LIFT bottom -> top: thick drips with white gloss highlights,
+   Opening animation (about 6.70s)
+   0.00-0.70  black -> indigo, big eyes fade in and grow
+   0.85/1.45  two slower blinks
+   1.80-3.42  eyes look left, then right, then back to centre
+   3.15-4.10  glossy blob inflates behind the eyes (bouncy)
+   4.15-6.35  LIFT bottom -> top: thick drips with white gloss highlights,
               the blob + eyes ride the edge and land at the small
               mascot spot at the top
-   3.70-3.90  cross-fade onto the real mascot
+   6.35-6.70  cross-fade onto the real mascot
    Everything scales with one unit (k): same look on phone and laptop.
    Add ?slow=4 to the URL to watch it in slow motion.
 ------------------------------------------------------------------- */
 const T = {
-  fade: 0.45,
-  blinks: [0.55, 0.95],
-  blinkDur: 0.2,
+  fade: 0.7,
+  blinks: [0.85, 1.45],
+  blinkDur: 0.32,
   // [time, look] : -1 = left, 1 = right, 0 = centre
-  look: [[1.3, 0], [1.58, -1], [1.7, -1], [1.98, 1], [2.1, 1], [2.38, 0]] as [number, number][],
-  inflate0: 2.2,
-  inflate: 0.65,
-  lift0: 2.95,
-  lift: 0.75,
-  tail: 0.2,
+  look: [[1.8, 0], [2.25, -1], [2.42, -1], [2.82, 1], [3.0, 1], [3.42, 0]] as [number, number][],
+  inflate0: 3.15,
+  inflate: 0.95,
+  lift0: 4.15,
+  lift: 2.20,
+  tail: 0.35,
 };
 
 type Drip = { x: number; w: number; L: number; ph: number; hl: boolean; hl2: boolean };
@@ -57,6 +57,33 @@ function rng(seed: number) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function drawGlossCrescent(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number,
+  angle = 0
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.fillStyle = "#fff";
+
+  const outer = radius;
+  const inner = radius * 0.58;
+  const start = Math.PI * 0.58;
+  const end = Math.PI * 1.22;
+
+  ctx.beginPath();
+  ctx.moveTo(outer * Math.cos(start), outer * Math.sin(start));
+  ctx.arc(0, 0, outer, start, end);
+  ctx.lineTo(inner * Math.cos(end), inner * Math.sin(end));
+  ctx.arc(0, 0, inner, end, start, true);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 
 function lookAt(s: number) {
@@ -201,36 +228,17 @@ export default function Splash({ onDone }: { onDone: () => void }) {
           bulbs.push({ x: d.x, y: yb, r, d, len });
         }
 
-        // Narrow white wet-paint crescents on the visible bulb edges.
+        // One reusable flat-white crescent per eligible drip tip.
         for (const b of bulbs) {
-          ctx.save();
-          ctx.fillStyle = "#fff";
-          const cx = b.x - b.r * 0.18;
-          const cy = b.y + b.r * 0.02;
-          const outer = b.r * 0.82;
-          const inner = b.r * 0.48;
-          const a0 = Math.PI * 0.58;
-          const a1 = Math.PI * 1.20;
-          ctx.beginPath();
-          ctx.moveTo(cx + outer * Math.cos(a0), cy + outer * Math.sin(a0));
-          ctx.arc(cx, cy, outer, a0, a1, false);
-          ctx.lineTo(cx + inner * Math.cos(a1), cy + inner * Math.sin(a1));
-          ctx.arc(cx, cy, inner, a1, a0, true);
-          ctx.closePath();
-          ctx.fill();
-          ctx.strokeStyle = "#fff";
-          ctx.lineWidth = Math.max(3.5 * k, 3.5);
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.arc(
-            b.x - b.r * 0.10,
-            b.y + b.r * 0.12,
-            b.r * 0.86,
-            Math.PI * 0.64,
-            Math.PI * 1.10
+          if (!b.d.hl) continue;
+          const size = b.r * (b.d.hl2 ? 0.62 : 0.52);
+          drawGlossCrescent(
+            ctx,
+            b.x - b.r * 0.20,
+            b.y + b.r * 0.10,
+            size,
+            -0.08
           );
-          ctx.stroke();
-          ctx.restore();
         }
       }
 
