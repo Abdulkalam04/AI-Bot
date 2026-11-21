@@ -9,6 +9,7 @@ export const STRINGS = {
   appearance: "Appearance",
   motion: "Motion",
   voiceLanguage: "Voice language",
+  speakReplies: "Speak replies",
   today: "Today",
   tomorrow: "Tomorrow",
   thisWeekend: "This weekend",
@@ -17,4 +18,7 @@ export const STRINGS = {
   dictationUnsupported: "Dictation isn't supported in this browser",
   microphoneBlocked: "Microphone is blocked. Allow it in the browser's site settings.",
   voiceUnavailable: "Voice audio isn't available. Using a visual fallback.",
+  signIn: "Sign in",
+  signOut: "Sign out",
+  account: "Account",
 } as const;

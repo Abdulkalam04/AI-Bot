@@ -17,6 +17,23 @@
   align-items: flex-end;
   gap: 4px;
 }
+
+/* images above the user text bubble */
+.userImages {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 82%;
+}
+.userImage {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--hair);
+  display: block;
+}
 .contextCaption { color: var(--ink-3); font-size: 12px; padding-right: 8px; }
 .leaving { animation: leaveUp 250ms ease-in both; }
 .leavingChat > * { animation: leaveUp 250ms ease-in both; }
@@ -53,6 +70,129 @@
   animation: pop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; transform-origin: left center;
 }
 .reply .w { font-size: inherit; }
+
+/* ---- markdown body inside reply bubble ---- */
+.mdBody { display: contents; }
+
+/* fade-in for newly arrived markdown nodes */
+@keyframes mdNew {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: none; }
+}
+.mdNew { animation: mdNew 0.3s ease-out both; }
+
+/* typography */
+.mdP  { margin: 0 0 8px; line-height: 1.55; }
+.mdP:last-child { margin-bottom: 0; }
+
+.mdH  { font-weight: 650; letter-spacing: -0.015em; color: var(--ink); margin: 10px 0 4px; }
+.mdH1 { font-size: 17px; }
+.mdH2 { font-size: 15.5px; }
+.mdH3 { font-size: 14.5px; }
+
+.mdStrong { font-weight: 650; color: var(--ink); }
+.mdEm     { font-style: italic; }
+
+.mdUl, .mdOl { margin: 4px 0 8px 18px; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.mdOl { list-style-type: decimal; }
+.mdUl { list-style-type: disc; }
+.mdLi { line-height: 1.5; }
+
+.mdLink {
+  color: var(--indigo);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+.mdLink:hover { opacity: 0.8; }
+
+/* inline code */
+.inlineCode {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 13px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--surface-soft);
+  border: 1px solid var(--hair);
+  color: var(--ink-2);
+  letter-spacing: 0;
+}
+
+/* fenced code block */
+.codeBlock {
+  margin: 8px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--hair);
+  background: var(--bg-deep);
+}
+.codeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--hair);
+  gap: 8px;
+}
+.codeLang {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  text-transform: lowercase;
+  letter-spacing: 0;
+}
+.codeCopy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  background: transparent;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.codeCopy:hover { background: var(--surface); color: var(--ink-2); }
+.codeCopy:active { transform: scale(0.95); }
+.codePre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  letter-spacing: 0;
+}
+.codePre code { font: inherit; color: inherit; background: none; border: none; padding: 0; }
+
+.mdBlockquote {
+  margin: 6px 0;
+  padding: 6px 12px;
+  border-left: 3px solid var(--indigo);
+  color: var(--ink-3);
+  font-style: italic;
+}
+.mdHr {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid var(--hair);
+}
+.mdTableWrap { overflow-x: auto; margin: 6px 0; }
+.mdTable { border-collapse: collapse; font-size: 13px; width: 100%; }
+.mdTh, .mdTd {
+  padding: 5px 10px;
+  border: 1px solid var(--hair);
+  text-align: left;
+}
+.mdTh { background: var(--surface-soft); font-weight: 600; color: var(--ink); }
 
 /* ---- typing dots ---- */
 .typing {
@@ -122,6 +262,68 @@
   .opt:hover:not(:disabled) svg { color: var(--indigo); }
 }
 
+.replyWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.taskBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  border: 1px solid var(--hair);
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--ink-2);
+}
+.taskBadge svg {
+  color: var(--ink);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .w, .user, .card, .typing, .typing i { animation: none; }
+}
+
+/* ---- Copy / Retry buttons under reply ---- */
+.replyActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 4px;
+}
+.replyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  background: transparent;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.replyBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+@media (hover: hover) {
+  .replyBtn:not(:disabled):hover {
+    background: var(--surface-soft);
+    color: var(--ink-2);
+    border-color: var(--ink-3);
+  }
+}
+.replyBtn:not(:disabled):active { transform: scale(0.95); }
+.replyBtnDone {
+  color: var(--ink-2);
+  border-color: var(--ink-3);
+  background: var(--surface-soft);
 }

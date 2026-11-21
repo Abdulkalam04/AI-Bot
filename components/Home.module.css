@@ -31,8 +31,19 @@
 
 .top {
   position: absolute; top: 0; left: 0; right: 0; z-index: 5;
-  display: grid; grid-template-columns: 44px 1fr 44px; align-items: start;
+  display: flex; align-items: start; justify-content: space-between;
   padding: var(--top-pad) var(--pad-x) 0;
+}
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topCenter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 .round {
   position: relative;

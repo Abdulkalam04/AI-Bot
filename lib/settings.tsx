@@ -5,17 +5,24 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 export type Appearance = "light" | "dark" | "system";
 export type MotionSetting = "full" | "calm" | "off";
 export type VoiceLanguage = "en-US" | "en-IN" | "hi-IN" | "es-ES" | "fr-FR" | "de-DE";
+export type Persona = "friendly" | "concise" | "formal" | "custom";
 
 export type Settings = {
   appearance: Appearance;
   motion: MotionSetting;
   voiceLanguage: VoiceLanguage;
+  speakReplies: boolean;
+  persona: Persona;
+  customInstructions: string;
 };
 
 const DEFAULT_SETTINGS: Settings = {
   appearance: "system",
   motion: "full",
   voiceLanguage: "en-US",
+  speakReplies: true,
+  persona: "friendly",
+  customInstructions: "",
 };
 
 const STORAGE_KEY = "puddle-settings";
